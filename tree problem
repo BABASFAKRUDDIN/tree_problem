@@ -1,0 +1,80 @@
+                             A
+                            / \
+                           /   \
+                         B      C
+                        / \    
+                      /     \
+                    D        E
+      
+
+--------------------------------------------------------------------------------------------------------------------
+
+Implementing a tree data structure in a relational database can be done using either the adjacency list model or the nested set model.
+  
+    Adjacency List Model:
+      In this approach, each node in the tree is represented as a row in a table with columns for the node's ID, parent ID, and other data. 
+      The parent-child relationship between nodes is represented by the parent ID of a node referring to the ID of its parent.
+
+
+      class TreeNode(models.Model):
+          parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True)
+          data = models.CharField(max_length=100)
+
+      To count the number of descendants of a node on the first level, we can use a recursive function to traverse the tree and count the number 
+        of children of each node.
+
+      Pros:
+          Easy to implement and query.
+          Efficient for inserting and deleting nodes in the tree.
+
+      Cons:
+          Querying for a node's descendants can be slow for large trees with a high depth level.
+   Nested Set Model:
+      In this approach, each node in the tree is represented as a row in a table with columns for the node's ID, left and right values that define the node's position in the tree, and other data. The parent-child relationship between nodes is represented by the left and right values.
+
+        class TreeNode(models.Model):
+            lft = models.PositiveIntegerField()
+            rght = models.PositiveIntegerField()
+            data = models.CharField(max_length=100)
+
+        To count the number of descendants of a node on the first level, we can use a single SQL query to count the number of 
+        nodes with a left value greater than the node's left value and a right value less than the node's right value.
+
+        Pros:
+
+            Efficient for querying and retrieving entire subtrees.
+            Easy to determine the depth and order of nodes in the tree.
+
+        Cons:
+
+            More complex to implement and less efficient for inserting and deleting nodes in the tree.
+            
+   -------------------------------------------------------------------------------------------------------------------------------
+   In the adjacency list model, The D node would be related to the A node as a grandchild. 
+    The D node would have a parent ID that refers to the ID of the B node, and the B node would have a parent ID that refers to the ID of the A node.
+   
+   
+   -------------------------------------------------------------------------------------------------------------------------------
+   
+   
+   To count the number of descendants of a node on the first level, we can use a recursive function that starts at the node of interest (e.g., the A node) and adds the number of children for that node. The function then repeats the process for each child, until all children and grandchildren have been counted. The total count would be the sum of the number of children for each node in the subtree rooted at the node of interest (e.g., A node).
+
+
+    def count_descendants(node):
+        count = node.children.count()
+        for child in node.children.all():
+            count += count_descendants(child)
+        return count
+
+  In the nested set model, the count of descendants can be determined using a single SQL query that counts the number 
+  of nodes with a left value greater than the node's left value and a right value less than the node's right value.
+
+
+  def count_descendants(node):
+      return node.__class__.objects.filter(lft__gt=node.lft, rght__lt=node.rght).count()
+
+  Even with 10,000 items and a depth level of 10, both the adjacency list and nested set models should be able to efficiently
+  count the number of descendants for a node on the first level.
+
+   
+   
