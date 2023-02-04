@@ -29,7 +29,9 @@ Implementing a tree data structure in a relational database can be done using ei
 
       Cons:
           Querying for a node's descendants can be slow for large trees with a high depth level.
+        
    Nested Set Model:
+   
       In this approach, each node in the tree is represented as a row in a table with columns for the node's ID, left and right values that define the node's position in the tree, and other data. The parent-child relationship between nodes is represented by the left and right values.
 
         class TreeNode(models.Model):
@@ -48,7 +50,7 @@ Implementing a tree data structure in a relational database can be done using ei
         Cons:
 
             More complex to implement and less efficient for inserting and deleting nodes in the tree.
-            
+           
    -------------------------------------------------------------------------------------------------------------------------------
    In the adjacency list model, The D node would be related to the A node as a grandchild. 
     The D node would have a parent ID that refers to the ID of the B node, and the B node would have a parent ID that refers to the ID of the A node.
@@ -72,7 +74,8 @@ Implementing a tree data structure in a relational database can be done using ei
 
   def count_descendants(node):
       return node.__class__.objects.filter(lft__gt=node.lft, rght__lt=node.rght).count()
-
+ 
+ -----------------------------------------------------------------------------------------------------------------------------------
   Even with 10,000 items and a depth level of 10, both the adjacency list and nested set models should be able to efficiently
   count the number of descendants for a node on the first level.
 
